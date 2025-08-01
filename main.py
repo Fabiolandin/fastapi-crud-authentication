@@ -16,7 +16,9 @@ bcryp_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 #Importando os roteadores de rota
 from auth_routes import auth_router
 from product_routes import product_router
+from order_routes import order_router
 
 #incluindo no arquivo os roteadores de rota de auth e product
 app.include_router(auth_router)
 app.include_router(product_router)
+app.include_router(order_router)

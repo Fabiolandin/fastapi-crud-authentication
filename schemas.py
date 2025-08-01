@@ -18,3 +18,10 @@ class ProdutoSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class PedidoSchema(BaseModel):
+    usuario: int
+
+    class Config:
+        from_attributes = True
