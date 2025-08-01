@@ -10,3 +10,11 @@ class UsuarioSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+class ProdutoSchema(BaseModel):
+    nome: str
+    descricao: str
+    preco: float
+
+    class Config:
+        from_attributes = True
