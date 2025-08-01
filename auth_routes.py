@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from models import Usuario
 from dependencies import pegar_sessao
+from main import bcryp_context
 
 #Criando roteador de rota com prefixo de /auth
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
@@ -17,9 +18,10 @@ async def criar_conta(email: str, senha: str, nome: str, session = Depends(pegar
     """ Rota para criar uma nova conta de usuário. """
     usuario = session.query(Usuario).filter(Usuario.email == email).first()
     if usuario:
-        return {"mensagem": "Já existe usuário com este email"}
+        return HTTPException(status_code=400, detail="Usuário já existe com este email")
     else:
-        novo_usuario = Usuario(nome, email, senha)
+        senha_criptografada = bcryp_context.hash(senha)
+        novo_usuario = Usuario(nome, email, senha_criptografada)
         session.add(novo_usuario)
         session.commit()
-    return {"mensagem": "Conta criada com sucesso"}
+    return {"mensagem": f"Conta criada com sucesso {email}"}
