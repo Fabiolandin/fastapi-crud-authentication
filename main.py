@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from passlib.context import CryptContext
+from fastapi.security import OAuth2PasswordBearer
 from dotenv import load_dotenv
 import os
 
@@ -15,6 +16,7 @@ app = FastAPI()
 
 #instanciando objeto de criptografia
 bcryp_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_schema = OAuth2PasswordBearer(tokenUrl="auth/login-form")
 
 #Importando os roteadores de rota
 from auth_routes import auth_router
