@@ -5,7 +5,7 @@ from schemas import ProdutoSchema
 from sqlalchemy.orm import Session
 
 #Criando roteador de rota com prefixo de /product
-product_router = APIRouter(prefix="/product", tags=["product"])
+product_router = APIRouter(prefix="/product", tags=["produtos"])
 
 #Criando rotas
 
