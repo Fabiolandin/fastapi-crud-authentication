@@ -57,5 +57,6 @@ async def adicionar_item_pedido(id_pedido:int, item_pedido_schema: ItemPedidoSch
     
     item_pedido = ItemPedido(quantidade=item_pedido_schema.quantidade, preco_unitario=item_pedido_schema.preco_unitario, pedido=id_pedido, produto=item_pedido_schema.produto)
     session.add(item_pedido)
+    pedido.calcular_preco()
     session.commit()
     return {"mensagem": "Item adicionado ao pedido com sucesso", "item": produto.nome}
