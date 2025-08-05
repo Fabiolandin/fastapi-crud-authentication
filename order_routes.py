@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from dependencies import pegar_sessao, verificar_token
-from schemas import PedidoSchema, ItemPedidoSchema, ProdutoSchema
+from schemas import PedidoSchema, ItemPedidoSchema, ProdutoSchema, ResponsePedidoSchema
 from models import Pedido, Usuario, ItemPedido, Produto
+from typing import List
 
 order_router = APIRouter(prefix="/pedidos", tags=["pedidos"], dependencies=[Depends(verificar_token)])
 
@@ -75,3 +76,33 @@ async def remover_item_pedido(id_item_pedido:int, session: Session = Depends(peg
     pedido.calcular_preco()
     session.commit()
     return {"mensagem": "Item removido com sucesso","quantidade_itens_pedido": len(pedido.itens), "pedido": pedido}
+
+#Finalizar pedido por id
+@order_router.post("/pedido/finalizar/{id_pedido}")
+async def finalizar_pedido(id_pedido: int, session: Session = Depends(pegar_sessao), usuario: Usuario = Depends(verificar_token)):
+    """ Rota para cancelamento de pedidos."""
+    pedido = session.query(Pedido).filter(Pedido.id == id_pedido).first()
+    if not pedido:
+        raise HTTPException(status_code=400, detail="Pedido não encontrado")
+    if not usuario.admin or usuario.id != pedido.usuario:
+        raise HTTPException(status_code=401, detail="Voce não tem autorização para cancelar este pedido")
+    pedido.status = "FINALIZADO"
+    session.commit()
+    return {"mensagem": f"Pedido ID: {pedido.id} finalizado com sucesso", "pedido": pedido}
+
+#Visualizar pedido por id de pedido
+@order_router.get("/pedido/{id_pedido}")
+async def visualizar_pedido(id_pedido: int, session: Session = Depends(pegar_sessao), usuario: Usuario = Depends(verificar_token)):
+    """ Rota para visualizar detalhes de um pedido específico."""
+    pedido = session.query(Pedido).filter(Pedido.id == id_pedido).first()
+    if not pedido:
+        raise HTTPException(status_code=400, detail="Pedido não encontrado")
+    if not usuario.admin and usuario.id != pedido.usuario:
+        raise HTTPException(status_code=401, detail="Você não tem autorização para visualizar este pedido")
+    return {"quantidade_itens_pedido": len(pedido.itens), "pedido": pedido}
+
+@order_router.get("/listar/pedidos-usuario}", response_model=List[ResponsePedidoSchema])
+async def listar_pedidos(session: Session = Depends(pegar_sessao), usuario: Usuario = Depends(verificar_token)):
+    """ Rota para listar pedidos da conta em que está logada. """
+    pedidos = session.query(Pedido).filter(Pedido.usuario == usuario.id).all()
+    return pedidos
