@@ -42,16 +42,13 @@ Atualização e remoção de usuário
 
 📌 Exemplo de uso
 **Login**
-POST /login
-Content-Type: application/json
+POST /token  
+Content-Type: application/x-www-form-urlencoded
 
-{
-  "username": "fabio",
-  "password": "123456"
-}
+username=fabio&password=123456
 
 **Acesso a rota protegida**
-GET /users/me
+GET /users/me  
 Authorization: Bearer SEU_TOKEN_AQUI
 
 ---
