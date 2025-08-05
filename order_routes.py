@@ -29,4 +29,4 @@ async def cancelar_pedido(id_pedido: int, session: Session = Depends(pegar_sessa
         raise HTTPException(status_code=401, detail="Voce não tem autorização para cancelar este pedido")
     pedido.status = "CANCELADO"
     session.commit()
-    return {"mensagem": f"Pedido ID: {id_pedido} cancelado com sucesso", "pedido": pedido}
+    return {"mensagem": f"Pedido ID: {pedido.id} cancelado com sucesso", "pedido": pedido}
