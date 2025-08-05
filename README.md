@@ -56,10 +56,8 @@ Authorization: Bearer SEU_TOKEN_AQUI
 Sou o Fábio Landin, apaixonado por tecnologia desde criança e focado em transição de carreira para a área de desenvolvimento. Estou estudando Python com foco em backend e APIs com FastAPI.
 
 Se quiser trocar uma ideia, me chama lá no LinkedIn.
+https://www.linkedin.com/in/fabio-landin-a76867262/
 ---
 
-### ✅ O que você precisa fazer:
-
-- Substitua `https://www.linkedin.com/in/fabio-landin-a76867262/` pelo seu link verdadeiro do LinkedIn.
 
 Desenvolvido com ❤️ por Fabio Landin
