@@ -33,3 +33,11 @@ class LoginSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+class ItemPedidoSchema(BaseModel):
+    quantidade: int
+    preco_unitario: float
+    produto: int
+
+    class Config:
+        from_attributes = True

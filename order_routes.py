@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from dependencies import pegar_sessao, verificar_token
-from schemas import PedidoSchema
-from models import Pedido, Usuario
+from schemas import PedidoSchema, ItemPedidoSchema, ProdutoSchema
+from models import Pedido, Usuario, ItemPedido, Produto
 
 order_router = APIRouter(prefix="/pedidos", tags=["pedidos"], dependencies=[Depends(verificar_token)])
 
@@ -34,7 +34,6 @@ async def cancelar_pedido(id_pedido: int, session: Session = Depends(pegar_sessa
     session.commit()
     return {"mensagem": f"Pedido ID: {pedido.id} cancelado com sucesso", "pedido": pedido}
 
-
 @order_router.get("/listar")
 async def listar_pedidos(session: Session = Depends(pegar_sessao), usuario: Usuario = Depends(verificar_token)):
     """ Rota para listar pedidos. """
@@ -43,3 +42,20 @@ async def listar_pedidos(session: Session = Depends(pegar_sessao), usuario: Usua
     else:
         pedidos = session.query(Pedido).all()
         return {"pedidos": pedidos}
+    
+@order_router.post("/pedido/adicionar-item/{id_pedido}")
+async def adicionar_item_pedido(id_pedido:int, item_pedido_schema: ItemPedidoSchema, session: Session = Depends(pegar_sessao), usuario: Usuario = Depends(verificar_token)):
+    """ Rota para adicionar item ao pedido."""
+    pedido = session.query(Pedido).filter(Pedido.id == id_pedido).first()
+    produto = session.query(Produto).filter(Produto.id == item_pedido_schema.produto).first()
+    if not pedido:
+        raise HTTPException(status_code=400, detail="Pedido não encontrado")
+    if not usuario.admin or usuario.id != pedido.usuario:
+        raise HTTPException(status_code=401, detail="Você não tem autorização para adicionar itens a este pedido")
+    if not produto:
+        raise HTTPException(status_code=400, detail="Produto não encontrado")
+    
+    item_pedido = ItemPedido(quantidade=item_pedido_schema.quantidade, preco_unitario=item_pedido_schema.preco_unitario, pedido=id_pedido, produto=item_pedido_schema.produto)
+    session.add(item_pedido)
+    session.commit()
+    return {"mensagem": "Item adicionado ao pedido com sucesso", "item": produto.nome}
