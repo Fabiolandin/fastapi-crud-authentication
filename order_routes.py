@@ -12,8 +12,11 @@ async def pedidos():
     return {"mensagem": "Você acessou a rota de pedidos"}
 
 @order_router.post("/pedido")
-async def criar_pedido(pedido_schema: PedidoSchema, session: Session = Depends(pegar_sessao)):
+async def criar_pedido(pedido_schema: PedidoSchema, session: Session = Depends(pegar_sessao), usuario: Usuario = Depends(verificar_token)):
     """ Rota para criar pedidos."""
+    usuario_existente = session.query(Usuario).filter(Usuario.id == pedido_schema.usuario).first()
+    if not usuario_existente:
+        raise HTTPException(status_code=400, detail="Usuário não encontrado")
     novo_pedido = Pedido(usuario=pedido_schema.usuario)
     session.add(novo_pedido)
     session.commit()
@@ -30,3 +33,13 @@ async def cancelar_pedido(id_pedido: int, session: Session = Depends(pegar_sessa
     pedido.status = "CANCELADO"
     session.commit()
     return {"mensagem": f"Pedido ID: {pedido.id} cancelado com sucesso", "pedido": pedido}
+
+
+@order_router.get("/listar")
+async def listar_pedidos(session: Session = Depends(pegar_sessao), usuario: Usuario = Depends(verificar_token)):
+    """ Rota para listar pedidos. """
+    if not usuario.admin:
+        raise HTTPException(status_code=401, detail="Você não tem autorização para listar pedidos")
+    else:
+        pedidos = session.query(Pedido).all()
+        return {"pedidos": pedidos}
